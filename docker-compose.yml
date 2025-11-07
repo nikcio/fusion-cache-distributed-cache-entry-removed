@@ -1,0 +1,18 @@
+name: fusion-cache-debug
+services:
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    pull_policy: always
+    restart: unless-stopped
+    volumes:
+        - shared_db_data:/var/opt/mssql
+    environment:
+      - "MSSQL_PID=Developer"
+      - "ACCEPT_EULA=Y"
+      - "MSSQL_SA_PASSWORD=Local123"
+      - "MSSQL_IP_ADDRESS=0.0.0.0"
+    ports:
+      - "1433:1433"
+
+volumes:
+  shared_db_data:
