@@ -41,7 +41,7 @@ app.MapGet("/value", async ([FromQuery(Name = "tryGet")] bool? tryGet) =>
 
     if (tryGet == true)
     {
-        _ = await cache.TryGetAsync<MaybeValue<Result?>>("my-key");
+        _ = await cache.TryGetAsync<Result?>("my-key");
     }
 
     Func<FusionCacheFactoryExecutionContext<Result?>, CancellationToken, Task<Result?>> factory = async (fusionContext, ct) =>
@@ -53,7 +53,7 @@ app.MapGet("/value", async ([FromQuery(Name = "tryGet")] bool? tryGet) =>
         return new Result();
     };
 
-    var result = await cache.GetOrSetAsync("my-key", factory, failSafeDefaultValue: null);
+    MaybeValue<Result?> result = await cache.GetOrSetAsync("my-key", factory, failSafeDefaultValue: null);
 
     return Results.Ok(result);
 });
@@ -64,7 +64,7 @@ app.MapGet("/value-slow", async ([FromQuery(Name = "tryGet")] bool? tryGet) =>
 
     if (tryGet == true)
     {
-        _ = await cache.TryGetAsync<MaybeValue<Result?>>("my-key");
+        _ = await cache.TryGetAsync<Result?>("my-key");
     }
 
     Func<FusionCacheFactoryExecutionContext<Result?>, CancellationToken, Task<Result?>> factory = async (fusionContext, ct) =>
@@ -80,7 +80,7 @@ app.MapGet("/value-slow", async ([FromQuery(Name = "tryGet")] bool? tryGet) =>
         return new Result();
     };
 
-    var result = await cache.GetOrSetAsync("my-key", factory, failSafeDefaultValue: null);
+    MaybeValue<Result?> result = await cache.GetOrSetAsync("my-key", factory, failSafeDefaultValue: null);
 
     return Results.Ok(result);
 });
