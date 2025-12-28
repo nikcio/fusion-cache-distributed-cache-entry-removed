@@ -1,4 +1,4 @@
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.SqlServer;
 using Microsoft.Extensions.Options;
 using ZiggyCreatures.Caching.Fusion;
@@ -44,18 +44,21 @@ app.MapGet("/value", async ([FromQuery(Name = "tryGet")] bool? tryGet) =>
         _ = await cache.TryGetAsync<Result?>("my-key");
     }
 
+    bool stale = false;
     Func<FusionCacheFactoryExecutionContext<Result?>, CancellationToken, Task<Result?>> factory = async (fusionContext, ct) =>
     {
+        stale = true;
         fusionContext.Tags = ["my-tag"];
 
         await Task.Delay(100, ct);
 
+        stale = false;
         return new Result();
     };
 
     MaybeValue<Result?> result = await cache.GetOrSetAsync("my-key", factory, failSafeDefaultValue: null);
 
-    return Results.Ok(result);
+    return Results.Ok(new { result, stale });
 });
 
 app.MapGet("/value-slow", async ([FromQuery(Name = "tryGet")] bool? tryGet) =>
@@ -67,8 +70,10 @@ app.MapGet("/value-slow", async ([FromQuery(Name = "tryGet")] bool? tryGet) =>
         _ = await cache.TryGetAsync<Result?>("my-key");
     }
 
+    bool stale = false;
     Func<FusionCacheFactoryExecutionContext<Result?>, CancellationToken, Task<Result?>> factory = async (fusionContext, ct) =>
     {
+        stale = true;
         fusionContext.Tags = ["my-tag"];
 
         await Task.Delay(10000, ct);
@@ -77,12 +82,13 @@ app.MapGet("/value-slow", async ([FromQuery(Name = "tryGet")] bool? tryGet) =>
         await Task.Delay(10000, ct);
         await Task.Delay(10000, ct);
 
+        stale = false;
         return new Result();
     };
 
     MaybeValue<Result?> result = await cache.GetOrSetAsync("my-key", factory, failSafeDefaultValue: null);
 
-    return Results.Ok(result);
+    return Results.Ok(new { result, stale });
 });
 
 app.MapGet("/expire", async () =>
