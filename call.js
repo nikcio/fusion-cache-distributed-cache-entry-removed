@@ -19,13 +19,15 @@ function makeRequest(id) {
       res.on('end', () => {
         const duration = Date.now() - startTime;
         let stale = 'unknown';
+        let timestamp = 'unknown';
         try {
           const json = JSON.parse(data);
           stale = json.stale;
+          timestamp = json.result.value.timestamp;
         } catch (e) {
           // ignore
         }
-        console.log(`Request ${id}: Status ${res.statusCode}, Duration ${duration}ms, Stale: ${stale}`);
+        console.log(`Request ${id < 10 ? '0' + id : id}: Status ${res.statusCode}, Duration ${duration}ms, Stale: ${stale}, Timestamp: ${timestamp}`);
         resolve();
       });
     });
